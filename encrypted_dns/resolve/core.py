@@ -104,6 +104,8 @@ class WireMessageHandler:
     def firewall_clearance(self, wire_message, client_ip):
         try:
             dns_message = dns.message.from_wire(wire_message)
+            if self.firewall['client_white_list_only'] and client_ip not in self.firewall['client_white_list']:
+                return False
             if client_ip in self.firewall['client_blacklist']:
                 return False
 
@@ -119,7 +121,7 @@ class WireMessageHandler:
                     if q.rdtype == dns.rdatatype.ANY:
                         return False
 
-            if self.firewall['disable_AAAA']:
+            if self.firewall['AAAA_disabled']:
                 for q in dns_message.question:
                     if q.rdtype == dns.rdatatype.AAAA:
                         return False
